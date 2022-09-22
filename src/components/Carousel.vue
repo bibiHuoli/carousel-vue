@@ -4,40 +4,83 @@
     data() {
       return {
         currentIndex: 0,
+        images: [
+          'https://picsum.photos/300',
+          'https://picsum.photos/300/400',
+          'https://picsum.photos/400/300',
+        ],
+        touch: {
+          startX: 0,
+          endX: 0,
+        },
       }
     },
-    // mutations: {
-    //   nextIndex: () => {
-    //     if(this.currentIndex < this.slider.length - 1) {
-    //       this.currentIndex ++;
-    //     }
-    //   },
-    //   prevIndex: () => {
-    //     if(this.currentIndex > 0) {
-    //       this.currentIndex --;
-    //     }
-    //   },
-    // },
+    computed: {
+      sliderLength() {
+        return {
+          width: `${this.images.length * 100}%`,
+        }
+      },
+      slidePosition() {
+        return {
+          transform: `translateX(${this.currentIndex * - 100}%)`,
+        }
+      },
+    },
+    methods: {
+      nextIndex() {
+        if(this.currentIndex < this.images.length - 1) {
+          this.currentIndex ++;
+          // console.log(this.currentIndex);
+        }
+      },
+      prevIndex() {
+        if(this.currentIndex > 0) {
+          this.currentIndex --;
+          // console.log(this.currentIndex);
+        }
+      },
+      touchStart(event) {
+        this.touch.startX = event.touches[0].clientX;
+        this.touch.endX = 0;
+      },
+      touchMove(event) {
+        this.touch.endX = event.touches[0].clientX;
+      },
+      touchEnd() {
+        if(!this.touch.endX) return;
+        if(Math.abs(this.touch.endX - this.touch.startX) < 20) return;
+        if(this.touch.endX < this.touch.startX) {
+          return this.nextIndex();
+        } else {
+          return this.prevIndex();
+        };
+      },
+    },
+    mounted() {
+      this.$el.addEventListener('touchstart', this.touchStart);
+      this.$el.addEventListener('touchmove', this.touchMove);
+      this.$el.addEventListener('touchend', this.touchEnd);
+    },
   }
 </script>
 
 <template>
   <div class="carousel">
-    <div class="slider">
-      <div class="slide">
-        <img src="https://picsum.photos/300" />
-      </div>
-      <div class="slide">
-        <img src="https://picsum.photos/300/400" />
-      </div>
-      <div class="slide">
-        <img src="https://picsum.photos/400/300" />
+    <div class="slider" :style="sliderLength" >
+      <div
+        class="slide"
+        :key="index"
+        :style="slidePosition"
+        v-for="image in images"
+      >
+        <img :src="image" />
       </div>
     </div>
     <div class="nav">
-      <button class="indicator" @click=""></button>
-      <button class="indicator" @click=""></button>
-      <button class="indicator" @click=""></button>
+      <div :key="index" v-for="image in images">
+        <button class="indicator"></button>
+      </div>
     </div>
   </div>
 </template>
@@ -49,18 +92,20 @@
     padding: 0;
   }
   .carousel {
-    background: #a0a;
     height: 500px;
+    overflow: hidden;
     width: 400px;
   }
   .slider {
-    background: #00a;
     color: #ddd;
+    display: flex;
+    flex-direction: row;
     height: 400px;
   }
   .slide {
     height: 100%;
     width: 100%;
+    transition: transform 200ms ease-in-out;
   }
   .slide img {
     height: 100%;
