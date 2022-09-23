@@ -10,12 +10,17 @@
           'https://picsum.photos/400/300',
         ],
         touch: {
-          startX: 0,
           endX: 0,
+          startX: 0,
         },
       }
     },
     computed: {
+      indicatorSelected() {
+        return {
+          backgroundColor: '#fffa',
+        }
+      },
       sliderLength() {
         return {
           width: `${this.images.length * 100}%`,
@@ -28,6 +33,9 @@
       },
     },
     methods: {
+      goToSlide(index) {
+        this.currentIndex = index;
+      },
       nextIndex() {
         if(this.currentIndex < this.images.length - 1) {
           this.currentIndex ++;
@@ -72,15 +80,19 @@
         class="slide"
         :key="index"
         :style="slidePosition"
-        v-for="image in images"
+        v-for="image, index in images"
       >
         <img :src="image" />
       </div>
     </div>
     <div class="nav">
-      <div :key="index" v-for="image in images">
-        <button class="indicator"></button>
-      </div>
+      <button
+        @click="goToSlide(index)"
+        class="indicator"
+        :key="index"
+        :style="index === currentIndex ? indicatorSelected : ''"
+        v-for="image, index in images"  
+      ></button>
     </div>
   </div>
 </template>
@@ -117,18 +129,34 @@
     display: flex;
     flex-direction: row;
     gap: 2rem;
+    height: 30%;
     margin-top: 2rem;
     place-content: center;
+    width: 100%;
   }
   .nav .indicator {
     background-color: #fff4;
     border: none;
     border-radius: 50%;
     cursor: pointer;
-    height: 3rem;
-    width: 3rem;
+    height: 1.5rem;
+    width: 1.5rem;
   }
   .nav .indicator:focus {
     outline: none;
   }
+  /************ photo miniature ************/
+  /* .nav {
+    display: flex;
+    flex-direction: row;
+    overflow: auto;
+    place-content: space-between;
+  }
+  .nav .miniature {
+    height: 100px;
+    object-fit: cover;
+    object-position: center;
+    opacity: 0.2;
+    width: 100%;
+  } */
 </style>
